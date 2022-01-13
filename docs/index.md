@@ -2,12 +2,12 @@
 Welcome!
 Im gonna try and log here the steps I'm taking or took into the making of this project (_hopefully to completion_).
 
-##Materials (_project thingies_)
-- [Claw Machine](https://es.aliexpress.com/wholesale?SearchText=claw%20machine)
-- [ESP32](https://es.aliexpress.com/wholesale?SearchText=esp32) / [ESP32](https://www.amazon.com/s?k=esp32)
-- 3 x [H Bridge](https://es.aliexpress.com/wholesale?SearchText=H+bridge+arduino) / [H Bridge](https://www.amazon.com/s?k=h+bridge+arduino)
+## Materials (_project thingies_)
+- [Claw Machine Ali](https://es.aliexpress.com/wholesale?SearchText=claw%20machine)
+- [ESP32 Ali](https://es.aliexpress.com/wholesale?SearchText=esp32) / [ESP32 Ama](https://www.amazon.com/s?k=esp32)
+- 3 x [H Bridge Ali](https://es.aliexpress.com/wholesale?SearchText=H+bridge+arduino) / [H Bridge Ama](https://www.amazon.com/s?k=h+bridge+arduino)
 
-##First look at what this __claw machine__ does (_For now It works_)
+## First look at what this __claw machine__ does (_For now It works_)
 [Claw Machine]("/Imgs/Claw Machine.jpg")
 
 ##Undoing what someone did (_What's inside? unfixing what was a working claw machine_)
