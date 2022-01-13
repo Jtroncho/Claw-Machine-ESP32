@@ -10,6 +10,7 @@ Im gonna try and log here the steps I'm taking or took into the making of this p
 
 ## First look at what this __claw machine__ does.
 ### (_so far, It works_)
+[From Ali](https://es.aliexpress.com/item/1005003390056010.html?spm=a2g0o.productlist.0.0.78aa4144hfqjZs&algo_pvid=c3c81393-2dcb-4ee8-90cb-f53fe9cc25b0&algo_exp_id=c3c81393-2dcb-4ee8-90cb-f53fe9cc25b0-22&pdp_ext_f=%7B%22sku_id%22%3A%2212000025557493513%22%7D)
 ![Claw Machine](/Imgs/Claw Machine.jpg)
 
 ## Undoing what someone worked hard to produce
