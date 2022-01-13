@@ -1,6 +1,18 @@
-## Welcome to GitHub Pages
+## ESP32 CLAW MACHINE
+Welcome!
+Im gonna try and log here the steps I'm taking or took into the making of this project (_hopefully to completion_).
 
-You can use the [editor on GitHub](https://github.com/Jtroncho/Claw-Machine-ESP32/edit/main/docs/index.md) to maintain and preview the content for your website in Markdown files.
+##Materials (_project thingies_)
+- [Claw Machine](https://es.aliexpress.com/wholesale?SearchText=claw%20machine)
+- [ESP32](https://es.aliexpress.com/wholesale?SearchText=esp32) / [ESP32](https://www.amazon.com/s?k=esp32)
+- 3 x [H Bridge](https://es.aliexpress.com/wholesale?SearchText=H+bridge+arduino) / [H Bridge](https://www.amazon.com/s?k=h+bridge+arduino)
+
+##First look at what this __claw machine__ does (_For now It works_)
+[Claw Machine]("/Imgs/Claw Machine.jpg")
+
+##Undoing what someone did (_What's inside? unfixing what was a working claw machine_)
+First I grab an screwdriver and do what everyone does best, take apart everything, and hope I remember where all the screws go in.
+So.. whats 
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 
