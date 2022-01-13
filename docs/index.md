@@ -8,7 +8,7 @@ Im gonna try and log here the steps I'm taking or took into the making of this p
 - 3 x [H Bridge Ali](https://es.aliexpress.com/wholesale?SearchText=H+bridge+arduino) / [H Bridge Ama](https://www.amazon.com/s?k=h+bridge+arduino)
 
 ## First look at what this __claw machine__ does (_For now It works_)
-[Claw Machine]("Imgs/Claw Machine.jpg")
+[Claw Machine](Imgs/Claw Machine.jpg)
 
 ## Undoing what someone did (_What's inside? unfixing what was a working claw machine_)
 First I grab an screwdriver and do what everyone does best, take apart everything, and hope I remember where all the screws go in.
