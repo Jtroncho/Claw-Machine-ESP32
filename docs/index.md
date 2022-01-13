@@ -10,7 +10,7 @@ Im gonna try and log here the steps I'm taking or took into the making of this p
 ## First look at what this __claw machine__ does (_For now It works_)
 [Claw Machine]("/Imgs/Claw Machine.jpg")
 
-##Undoing what someone did (_What's inside? unfixing what was a working claw machine_)
+## Undoing what someone did (_What's inside? unfixing what was a working claw machine_)
 First I grab an screwdriver and do what everyone does best, take apart everything, and hope I remember where all the screws go in.
 So.. whats 
 
