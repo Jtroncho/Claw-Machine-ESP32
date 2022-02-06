@@ -212,7 +212,7 @@ function handleRightJoystickEvents(evt, data) {
 //Act on html.
 function toggleCheckbox(element) {
     obj = {
-        "id": "gpio",
+        "id": "pin",
         "action": "toggle",
         "pin": element.id
     };

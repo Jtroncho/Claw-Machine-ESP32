@@ -16,13 +16,13 @@
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include "SPIFFS.h"
+#include <SPIFFS.h>
 #include <Arduino_JSON.h>
 #include <AsyncElegantOTA.h>
 
 // Replace with your network credentials
-const char* ssid = "SSID";
-const char* password = "PASS";
+const char* ssid = "VIRGIN-telco_D608_EXT";
+const char* password = "C55QStsbH4EZA7";
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
@@ -35,6 +35,13 @@ AsyncWebSocket ws("/ws");
 
 // Assign each GPIO to an output
 int outputGPIOs[NUM_OUTPUTS] = {2, 4, 12, 14};
+//27 26 | 25 33 32 35
+int leftUp = 27;
+int leftDown = 26;
+int rightUp = 25;
+int rightDown = 33;
+int rightRight = 32;
+int rightLeft = 35;
 
 // Initialize SPIFFS
 void initSPIFFS() {
@@ -62,8 +69,7 @@ String getOutputStates(){
     myArray["gpios"][i]["output"] = String(outputGPIOs[i]);
     myArray["gpios"][i]["state"] = String(digitalRead(outputGPIOs[i]));
   }
-  String jsonString = JSON.stringify(myArray);
-  return jsonString;
+  return JSON.stringify(myArray);
 }
 
 void notifyClients(String state) {
@@ -86,34 +92,71 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
       Serial.println("No id property...");
       return;
     }
-    Serial.println(JSON.stringify(myObj));
+    Serial.println("JSON OBJECT: ");
+    Serial.println(myObj);
 
     if(strcmp(myObj["id"], "gpiostates")) {
+      Serial.println("CHECKING GPIO STATES");
       notifyClients(getOutputStates());
       return;
     }
 
-    if(strcmp(myObj["id"], "gpio")) {
-      int gpio = (int) myObj["pin"];
+    if(strcmp(myObj["id"], "pin")) {
+      if(myObj.hasOwnProperty("action")){
+        int gpio = (int) myObj["pin"];
+        Serial.print("Action: ");
+        Serial.println((const char*)myObj["action"]);
+        Serial.print("On pin: ");
+        Serial.println(gpio);
 
-      Serial.print("Action: ");
-      Serial.println((const char*) myObj["action"]);
-      Serial.print("On pin: ");
-      Serial.println(gpio);
-      
-      digitalWrite(gpio, !digitalRead(gpio));
-      notifyClients(getOutputStates());
-      return;
+        if(strcmp(myObj["action"], "toggle")) {
+          digitalWrite(gpio, !digitalRead(gpio));
+          Serial.println("Toggled");
+        }
+
+        notifyClients(getOutputStates());
+        return;
+      }
     }
-    /*data[len] = 0;
-    if (strcmp((char*)data, "states") == 0) {
-      notifyClients(getOutputStates());
+
+    if(strcmp(myObj["id"], "joystick")) {
+      if(myObj.hasOwnProperty("joystick")){
+        if(strcmp(myObj["joystick"], "left")) {
+          if(strcmp(myObj["directionY"], "up")) {
+            digitalWrite(leftUp, 1);
+            return;
+          }
+          if(strcmp(myObj["directionY"], "down")) {
+            digitalWrite(leftDown, 1);
+            return;
+          }
+          digitalWrite(leftUp, 0);
+          digitalWrite(leftDown, 0);
+          return;
+        }
+        if(strcmp(myObj["joystick"], "right")) {
+          if(strcmp(myObj["directionY"], "up")) {
+            digitalWrite(rightUp, 1);
+          } else if(strcmp(myObj["directionY"], "down")) {
+            digitalWrite(rightDown, 1);
+          }
+          if(strcmp(myObj["directionX"], "left")) {
+            digitalWrite(rightLeft, 1);
+          } else if (strcmp(myObj["directionX"], "right")) {
+            digitalWrite(rightRight, 1);
+          }
+          if(strcmp(myObj["directionY"], "stop")) {
+            digitalWrite(rightUp, 0);
+            digitalWrite(rightDown, 0);
+          }
+          if(strcmp(myObj["directionX"], "stop")) {
+            digitalWrite(rightLeft, 0);
+            digitalWrite(rightRight, 0);
+          }
+          return;
+        }
+      }
     }
-    else{
-      int gpio = atoi((char*)data);
-      digitalWrite(gpio, !digitalRead(gpio));
-      notifyClients(getOutputStates());
-    }*/
   }
 }
 
@@ -148,6 +191,14 @@ void setup(){
   for (int i =0; i<NUM_OUTPUTS; i++){
     pinMode(outputGPIOs[i], OUTPUT);
   }
+
+  pinMode(leftUp, OUTPUT);
+  pinMode(leftDown, OUTPUT);
+  pinMode(rightUp, OUTPUT);
+  pinMode(rightDown, OUTPUT);
+  pinMode(rightRight, OUTPUT);
+  pinMode(rightLeft, OUTPUT);
+
   initSPIFFS();
   initWiFi();
   initWebSocket();
