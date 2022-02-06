@@ -70,11 +70,42 @@ void notifyClients(String state) {
   ws.textAll(state);
 }
 
-/*
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
   AwsFrameInfo *info = (AwsFrameInfo*)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
-    data[len] = 0;
+    JSONVar myObj = JSON.parse((char*)data);
+    //JSONVar myObject = JSON.parse(input);
+
+    // JSON.typeof(jsonVar) can be used to get the type of the var
+    if (JSON.typeof(myObj) == "undefined") {
+      Serial.println("Parsing input failed!");
+      return;
+    }
+
+    if (!myObj.hasOwnProperty("id")) {
+      Serial.println("No id property...");
+      return;
+    }
+    Serial.println(JSON.stringify(myObj));
+
+    if(strcmp(myObj["id"], "gpiostates")) {
+      notifyClients(getOutputStates());
+      return;
+    }
+
+    if(strcmp(myObj["id"], "gpio")) {
+      int gpio = (int) myObj["pin"];
+
+      Serial.print("Action: ");
+      Serial.println((const char*) myObj["action"]);
+      Serial.print("On pin: ");
+      Serial.println(gpio);
+      
+      digitalWrite(gpio, !digitalRead(gpio));
+      notifyClients(getOutputStates());
+      return;
+    }
+    /*data[len] = 0;
     if (strcmp((char*)data, "states") == 0) {
       notifyClients(getOutputStates());
     }
@@ -82,45 +113,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
       int gpio = atoi((char*)data);
       digitalWrite(gpio, !digitalRead(gpio));
       notifyClients(getOutputStates());
-    }
-  }
-}
-
-void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
-    AwsFrameInfo *info = (AwsFrameInfo*)arg;
-    if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
-
-        const uint8_t size = JSON_OBJECT_SIZE(1);
-        StaticJsonDocument<size> json;
-        DeserializationError err = deserializeJson(json, data);
-        if (err) {
-            Serial.print(F("deserializeJson() failed with code "));
-            Serial.println(err.c_str());
-            return;
-        }
-
-        const char *action = json["action"];
-        if (strcmp(action, "toggle") == 0) {
-            led.on = !led.on;
-            notifyClients();
-        }
-        
-    }
-}
-*/
-
-void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
-  AwsFrameInfo *info = (AwsFrameInfo*)arg;
-  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
-    data[len] = 0;
-    if (strcmp((char*)data, "states") == 0) {
-      notifyClients(getOutputStates());
-    }
-    else{
-      int gpio = atoi((char*)data);
-      digitalWrite(gpio, !digitalRead(gpio));
-      notifyClients(getOutputStates());
-    }
+    }*/
   }
 }
 

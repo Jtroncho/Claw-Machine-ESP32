@@ -2,6 +2,9 @@
 Welcome!
 Im gonna try and log here the steps I'm taking or took into the making of this project (_hopefully to completion_).
 
+# Demo
+_*Demo showing, am I rite?*_
+
 ## Materials.
 ### (_project thingies_)
 - [Claw Machine Ali](https://es.aliexpress.com/wholesale?SearchText=claw%20machine)
@@ -31,7 +34,14 @@ So.. what's on display now?
 ![Circuitry](/Imgs/Circuitry 05.jpg)
 ![Circuitry](/Imgs/Circuitry 06.jpg)
 
----------
+## Bibliography
+![randomnerdtutorials OTA](https://randomnerdtutorials.com/esp32-ota-over-the-air-arduino/)
+![randomnerdtutorials Websocket](https://randomnerdtutorials.com/esp32-websocket-server-arduino/)
+![yoannmoi Joysticks](https://yoannmoi.net/nipplejs/)
+![HTML Joystick](https://moshfeu.medium.com/how-to-build-an-html5-games-controller-with-arduino-nodejs-and-socket-io-part-2-bbd01bf36481)
+![m1cr0lab-esp32 websocket](https://m1cr0lab-esp32.github.io/remote-control-with-websocket/websocket-and-json/)
+
+------------------------------------
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 

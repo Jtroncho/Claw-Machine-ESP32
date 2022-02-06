@@ -39,8 +39,12 @@ function initWebSocket() {
 }
 
 function onOpen(event) {
+    obj = {
+        "id": "gpiostates"
+    };
+
     console.log('Connection opened');
-    websocket.send("states"); //Asking server for GPIO States to ESP32
+    sendJSONData(obj); //Asking server for GPIO States to ESP32
 }
 
 function onClose(event) {
@@ -54,9 +58,28 @@ function onMessage(event) {
     console.log("Message Received");
     var myObj = JSON.parse(event.data);
     console.log(myObj);
-    for (i in myObj.gpios) {
-        var output = myObj.gpios[i].output;
-        var state = myObj.gpios[i].state;
+    //Create actions for the JSON OBJS
+    if (myObj.hasOwnProperty("id"))
+    {
+        switch (myObj.id) {
+            case "gpiostates":
+                gpioStatesReceived(myObj);
+                break;
+            case "pin":
+                pinReceived(myObj);
+                break;
+            case "joystick":
+                joystickReceived(myObj);
+                break;
+        }
+    }
+    console.log("------------------------------");
+}
+
+function gpioStatesReceived(jsonData) {
+    for (i in jsonData.gpios) {
+        var output = jsonData.gpios[i].output;
+        var state = jsonData.gpios[i].state;
         console.log(output);
         console.log(state);
         if (state == "1") {
@@ -68,8 +91,19 @@ function onMessage(event) {
             document.getElementById(output + "s").innerHTML = "OFF";
         }
     }
-    console.log(event.data);
-    console.log("------------------------------");
+}
+function pinReceived(jsonData) {
+    console.log("Pin received:");
+    console.log(jsonData);
+}
+
+function joystickReceived(jsonData) {
+    console.log("Joystick received:");
+    console.log(jsonData);
+}
+
+function sendJSONData(data) {
+    websocket.send(JSON.stringify(data));
 }
 
 function createAndAssignJoysticks() {
@@ -189,7 +223,8 @@ function toggleCheckbox(element) {
         document.getElementById(element.id + "s").innerHTML = "OFF";
     }
     console.log(obj.action + ": " + obj.pin + " from " + obj.id);
-    websocket.send(obj);
+
+    sendJSONData(obj);
 }
 
 //Send joystick directions as json object. 
@@ -201,5 +236,6 @@ function passJoystickDirection(joystick, evt, directionY, directionX = "stop") {
         "directionX": directionX
     };
     console.log(joystick + " joystick: Y=" + directionY + ", X=" + directionX + ", EVENT TRIGGER: " + evt.type);
-    websocket.send(obj);
+    
+    sendJSONData(obj);
 }
