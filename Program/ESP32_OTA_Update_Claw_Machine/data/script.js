@@ -55,25 +55,26 @@ function onClose(event) {
 //Receives an JSON variable from ESP32 and puts the data into the HTML
 function onMessage(event) {
     console.log("------------------------------");
-    console.log("Message Received");
     var myObj = JSON.parse(event.data);
     console.log(myObj);
     //Create actions for the JSON OBJS
-    if (myObj.hasOwnProperty("id"))
-    {
+    if (myObj.hasOwnProperty("id")) {
         switch (myObj.id) {
             case "gpiostates":
+                console.log("gpiostates");
                 gpioStatesReceived(myObj);
                 break;
             case "pin":
+                console.log("pin");
                 pinReceived(myObj);
                 break;
             case "joystick":
+                console.log("joystick");
                 joystickReceived(myObj);
                 break;
         }
     }
-    console.log("------------------------------");
+    //console.log("------------------------------");
 }
 
 function gpioStatesReceived(jsonData) {
@@ -128,7 +129,7 @@ function createAndAssignLeftJoystick() {
             nipple.on('start dir end', function (evt, data) {
                 var directionY = handleLeftJoystickEvents(evt, data);
                 if (leftLastDirY != directionY) {
-                    passJoystickDirection("left", evt, directionY);
+                    passJoystickDirection("bi", evt, directionY);
                     leftLastDirY = directionY;
                 }
             });
@@ -160,9 +161,9 @@ function createAndAssignRightJoystick() {
     joystickR
         .on('added', function (evt, nipple) {
             nipple.on('start move end', function (evt, data) {
-                var directionY, directionX = handleRightJoystickEvents(evt, data);
+                var [directionY, directionX] = handleRightJoystickEvents(evt, data);
                 if (rightLastDirY != directionY || rightLastDirX != directionX) {
-                    passJoystickDirection("right", evt, directionY, directionX);
+                    passJoystickDirection("quad", evt, directionY, directionX);
                     rightLastDirY = directionY;
                     rightLastDirX = directionX;
                 }
@@ -179,8 +180,8 @@ function createAndAssignRightJoystick() {
 //Example: if angle is East+-deadzoneAngle then thats Right.Otherwise would be RigtUp or RightDown.
 //0/360(Right) or 180(Left): Stop Y axis
 function handleYAxis(moveData) {
-    if ((angleRight2 - deadzoneAngle) < moveData.angle.degree || moveData.angle.degree < (angleRight1 + deadzoneAngle) ||
-        (angleLeft - deadzoneAngle) < moveData.angle.degree && moveData.angle.degree < (angleLeft + deadzoneAngle)) {
+    if (((angleRight2 - deadzoneAngle) < moveData.angle.degree || moveData.angle.degree < (angleRight1 + deadzoneAngle)) ||
+        ((angleLeft - deadzoneAngle) < moveData.angle.degree && moveData.angle.degree < (angleLeft + deadzoneAngle))) {
         return "stop";
     }
     if (angleRight1 <= moveData.angle.degree && moveData.angle.degree <= angleLeft) {
@@ -203,9 +204,9 @@ function handleXAxis(moveData) {
 
 function handleRightJoystickEvents(evt, data) {
     if (evt.type == "move") {
-        return handleYAxis(data), handleXAxis(data);
+        return [handleYAxis(data), handleXAxis(data)];
     }
-    return "stop", "stop";
+    return ["stop", "stop"];
 }
 
 //Send Requests to toggle GPIOs.
@@ -214,7 +215,7 @@ function toggleCheckbox(element) {
     obj = {
         "id": "pin",
         "action": "toggle",
-        "pin": element.id
+        "number": element.id
     };
     if (element.checked) {
         document.getElementById(element.id + "s").innerHTML = "ON";
@@ -222,20 +223,20 @@ function toggleCheckbox(element) {
     else {
         document.getElementById(element.id + "s").innerHTML = "OFF";
     }
-    console.log(obj.action + ": " + obj.pin + " from " + obj.id);
+    console.log(obj.action + ": " + obj.pin + " | ID: " + obj.id);
 
     sendJSONData(obj);
 }
 
 //Send joystick directions as json object. 
-function passJoystickDirection(joystick, evt, directionY, directionX = "stop") {
+function passJoystickDirection(joystick, evt, directionY = "stop", directionX = "stop") {
     obj = {
         "id": "joystick",
-        "joystick": joystick,
+        "controller": joystick,
         "directionY": directionY,
         "directionX": directionX
     };
     console.log(joystick + " joystick: Y=" + directionY + ", X=" + directionX + ", EVENT TRIGGER: " + evt.type);
-    
+
     sendJSONData(obj);
 }
