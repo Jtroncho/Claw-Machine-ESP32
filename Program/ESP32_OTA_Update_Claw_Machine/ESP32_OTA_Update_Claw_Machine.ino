@@ -66,8 +66,9 @@ void initWiFi() {
 String getOutputStates(){
   JSONVar myArray;
   for (int i =0; i<NUM_OUTPUTS; i++){
-    myArray["gpiostates"][i]["output"] = String(outputGPIOs[i]);
-    myArray["gpiostates"][i]["state"] = String(digitalRead(outputGPIOs[i]));
+    myArray["id"] = "gpiostates";
+    myArray["gpios"][i]["output"] = String(outputGPIOs[i]);
+    myArray["gpios"][i]["state"] = String(digitalRead(outputGPIOs[i]));
   }
   return JSON.stringify(myArray);
 }
@@ -94,14 +95,15 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
     //Serial.println("JSON OBJECT: ");
     Serial.println("-------------");
     //Serial.println(myObj);
-
+    /*
+    Serial.println((const char*)myObj["id"]);
     Serial.print("gpiostates: ");
     Serial.println(strcmp((const char*)myObj["id"], "gpiostates") == 0);
     Serial.print("pin: ");
     Serial.println(strcmp((const char*)myObj["id"], "pin") == 0);
     Serial.print("controller: ");
     Serial.println(strcmp((const char*)myObj["id"], "controller") == 0);
-
+    */
     
     if(strcmp((const char*)myObj["id"], "gpiostates") == 0) {
       Serial.println("CHECKING GPIO STATES");
@@ -128,14 +130,14 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
       return;
     }
 
-    if(strcmp((const char*)myObj["id"], "controller") == 0) {
+    if(strcmp((const char*)myObj["id"], "joystick") == 0) {
       Serial.println(myObj);
       if(myObj.hasOwnProperty("controller")){
         if(strcmp((const char*)myObj["controller"], "bi") == 0) {
           if(myObj.hasOwnProperty("directionY")){
             Serial.print((const char*)myObj["controller"]);
             Serial.print(", ");
-            Serial.print((const char*)myObj["directionY"]);
+            Serial.println((const char*)myObj["directionY"]);
             if(strcmp((const char*)myObj["directionY"], "up") == 0) {
               digitalWrite(leftUp, 1);
               digitalWrite(leftDown, 0);
@@ -152,37 +154,42 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
           }
         }
         if(strcmp((const char*)myObj["controller"], "quad") == 0) {
-          Serial.print((const char*)myObj["controller"]);
-          Serial.print(", ");
-          Serial.print((const char*)myObj["directionY"]);
-          Serial.print(", ");
-          Serial.print((const char*)myObj["directionX"]);
+          //Serial.print((const char*)myObj["controller"]);
+          //Serial.print(", ");
           if(myObj.hasOwnProperty("directionY")){
+            //Serial.print((const char*)myObj["directionY"]);
             if(strcmp((const char*)myObj["directionY"], "up") == 0) {
+              Serial.println("ARRIBA");
               digitalWrite(rightUp, 1);
               digitalWrite(rightDown, 0);
             } else if(strcmp((const char*)myObj["directionY"], "down") == 0) {
+              Serial.println("ABAJO");
               digitalWrite(rightUp, 0);
               digitalWrite(rightDown, 1);
-            }
-            if(strcmp((const char*)myObj["directionY"], "stop") == 0) {
+            } else if (strcmp((const char*)myObj["directionY"], "stop") == 0) {
+              Serial.println("STOP");
               digitalWrite(rightUp, 0);
               digitalWrite(rightDown, 0);
             }
           }
           if(myObj.hasOwnProperty("directionX")){
+            //Serial.print(", ");
+            //Serial.print((const char*)myObj["directionX"]);
             if(strcmp((const char*)myObj["directionX"], "left") == 0) {
+              Serial.println("IZQUIERDA");
               digitalWrite(rightLeft, 1);
               digitalWrite(rightRight, 0);
             } else if (strcmp((const char*)myObj["directionX"], "right") == 0) {
-              digitalWrite(rightRight, 0);
-              digitalWrite(rightLeft, 1);
-            }
-            if(strcmp((const char*)myObj["directionX"], "stop") == 0) {
+              Serial.println("DERECHA");
+              digitalWrite(rightLeft, 0);
+              digitalWrite(rightRight, 1);
+            } else if (strcmp((const char*)myObj["directionX"], "stop") == 0) {
+              Serial.println("STOP");
               digitalWrite(rightLeft, 0);
               digitalWrite(rightRight, 0);
             }
           }
+          Serial.println();
           return;
         }
       }

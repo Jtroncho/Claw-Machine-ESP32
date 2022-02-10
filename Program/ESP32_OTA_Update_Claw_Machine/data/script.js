@@ -56,9 +56,9 @@ function onClose(event) {
 function onMessage(event) {
     console.log("------------------------------");
     var myObj = JSON.parse(event.data);
-    console.log(myObj);
-    //Create actions for the JSON OBJS
     if (myObj.hasOwnProperty("id")) {
+        //console.log(myObj);
+        //Create actions for the JSON OBJS
         switch (myObj.id) {
             case "gpiostates":
                 console.log("gpiostates");
@@ -81,8 +81,6 @@ function gpioStatesReceived(jsonData) {
     for (i in jsonData.gpios) {
         var output = jsonData.gpios[i].output;
         var state = jsonData.gpios[i].state;
-        console.log(output);
-        console.log(state);
         if (state == "1") {
             document.getElementById(output).checked = true;
             document.getElementById(output + "s").innerHTML = "ON";
@@ -223,7 +221,7 @@ function toggleCheckbox(element) {
     else {
         document.getElementById(element.id + "s").innerHTML = "OFF";
     }
-    console.log(obj.action + ": " + obj.pin + " | ID: " + obj.id);
+    console.log(obj.action + ": " + obj.number + " | ID: " + obj.id);
 
     sendJSONData(obj);
 }
