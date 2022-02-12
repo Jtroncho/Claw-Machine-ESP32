@@ -166,7 +166,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
               Serial.println("ABAJO");
               digitalWrite(rightUp, 0);
               digitalWrite(rightDown, 1);
-            } else if (strcmp((const char*)myObj["directionY"], "stop") == 0) {
+            } else {
               Serial.println("STOP");
               digitalWrite(rightUp, 0);
               digitalWrite(rightDown, 0);
@@ -183,7 +183,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
               Serial.println("DERECHA");
               digitalWrite(rightLeft, 0);
               digitalWrite(rightRight, 1);
-            } else if (strcmp((const char*)myObj["directionX"], "stop") == 0) {
+            } else {
               Serial.println("STOP");
               digitalWrite(rightLeft, 0);
               digitalWrite(rightRight, 0);
