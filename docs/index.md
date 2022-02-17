@@ -37,6 +37,7 @@ So.. what's on display now?
 ## Bibliography
 ![randomnerdtutorials OTA](https://randomnerdtutorials.com/esp32-ota-over-the-air-arduino/)
 ![randomnerdtutorials Websocket](https://randomnerdtutorials.com/esp32-websocket-server-arduino/)
+![randomnerdtutorials GPIOS](https://randomnerdtutorials.com/esp32-pinout-reference-gpios/)
 ![yoannmoi Joysticks](https://yoannmoi.net/nipplejs/)
 ![HTML Joystick](https://moshfeu.medium.com/how-to-build-an-html5-games-controller-with-arduino-nodejs-and-socket-io-part-2-bbd01bf36481)
 ![m1cr0lab-esp32 websocket](https://m1cr0lab-esp32.github.io/remote-control-with-websocket/websocket-and-json/)

@@ -1,17 +1,3 @@
-/*
-  Rui Santos
-  Complete project details
-   - Arduino IDE: https://RandomNerdTutorials.com/esp32-ota-over-the-air-arduino/
-   - VS Code: https://RandomNerdTutorials.com/esp32-ota-over-the-air-vs-code/
-  
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files.
-  
-  The above copyright notice and this permission notice shall be included in all
-  copies or substantial portions of the Software.
-*/
-
-// Import required libraries
 #include <Arduino.h>
 #include <WiFi.h>
 #include <AsyncTCP.h>
@@ -20,7 +6,6 @@
 #include <Arduino_JSON.h>
 #include <AsyncElegantOTA.h>
 
-// Replace with your network credentials
 const char* ssid = "VIRGIN-telco_D608_EXT";
 const char* password = "C55QStsbH4EZA7";
 
@@ -31,17 +16,14 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
 // Set number of outputs
-#define NUM_OUTPUTS  4
+#define NUM_OUTPUTS  10
 
-// Assign each GPIO to an output
-int outputGPIOs[NUM_OUTPUTS] = {2, 4, 12, 14};
-//27 26 | 25 33 32 35
-int leftUp = 27;
-int leftDown = 26;
-int rightUp = 25;
-int rightDown = 33;
-int rightRight = 32;
-int rightLeft = 35;
+// GPIO for Joysticks
+int leftUp = 27, leftDown = 26,
+    rightUp = 25, rightDown = 33, rightRight = 32, rightLeft = 23;
+
+// Assign each GPIO to an output, (should be on html to toggle)
+int outputGPIOs[NUM_OUTPUTS] = {2, 4, 12, 14, leftUp, leftDown, rightUp, rightDown, rightRight, rightLeft};
 
 // Initialize SPIFFS
 void initSPIFFS() {
@@ -63,9 +45,10 @@ void initWiFi() {
   Serial.println(WiFi.localIP());
 }
 
+// GPIO State as String
 String getOutputStates(){
   JSONVar myArray;
-  for (int i =0; i<NUM_OUTPUTS; i++){
+  for (int i=0; i<NUM_OUTPUTS; i++){
     myArray["id"] = "gpiostates";
     myArray["gpios"][i]["output"] = String(outputGPIOs[i]);
     myArray["gpios"][i]["state"] = String(digitalRead(outputGPIOs[i]));
@@ -73,130 +56,143 @@ String getOutputStates(){
   return JSON.stringify(myArray);
 }
 
+// Send String through websocket
 void notifyClients(String state) {
   ws.textAll(state);
 }
 
-void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
-  AwsFrameInfo *info = (AwsFrameInfo*)arg;
-  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
-    JSONVar myObj = JSON.parse((char*)data);
-    //JSONVar myObject = JSON.parse(input);
+// Update GPIO states through websocket
+void handleGpiostatesMessage() {
+  Serial.println("Sending GPIO States");
+  notifyClients(getOutputStates());
+}
 
-    // JSON.typeof(jsonVar) can be used to get the type of the var
-    if (JSON.typeof(myObj) == "undefined") {
-      Serial.println("Parsing input failed!");
-      return;
-    }
-    if (!myObj.hasOwnProperty("id")) {
-      Serial.println("No id property...");
-      return;
-    }
-    //Serial.println("JSON OBJECT: ");
-    Serial.println("-------------");
-    //Serial.println(myObj);
-    /*
-    Serial.println((const char*)myObj["id"]);
-    Serial.print("gpiostates: ");
-    Serial.println(strcmp((const char*)myObj["id"], "gpiostates") == 0);
-    Serial.print("pin: ");
-    Serial.println(strcmp((const char*)myObj["id"], "pin") == 0);
-    Serial.print("controller: ");
-    Serial.println(strcmp((const char*)myObj["id"], "controller") == 0);
-    */
-    
-    if(strcmp((const char*)myObj["id"], "gpiostates") == 0) {
-      Serial.println("CHECKING GPIO STATES");
-      notifyClients(getOutputStates());
-      return;
-    }
-
-    if(strcmp((const char*)myObj["id"], "pin") == 0) {
-      if(myObj.hasOwnProperty("number")){
-        int gpio = atoi(myObj["number"]);
-        Serial.print("On pin: ");
-        Serial.print(gpio);
-        if(myObj.hasOwnProperty("action")){
-          Serial.print(" Action: ");
-          Serial.print((const char*)myObj["action"]);
-          Serial.print(": ");
-          if(strcmp((const char*)myObj["action"], "toggle") == 0) {
-            digitalWrite(gpio, !digitalRead(gpio));
-            Serial.println("Toggled");
-            notifyClients(getOutputStates());
-          }
-        }
-      }
-      return;
-    }
-
-    if(strcmp((const char*)myObj["id"], "joystick") == 0) {
-      Serial.println(myObj);
-      if(myObj.hasOwnProperty("controller")){
-        if(strcmp((const char*)myObj["controller"], "bi") == 0) {
-          if(myObj.hasOwnProperty("directionY")){
-            Serial.print((const char*)myObj["controller"]);
-            Serial.print(", ");
-            Serial.println((const char*)myObj["directionY"]);
-            if(strcmp((const char*)myObj["directionY"], "up") == 0) {
-              digitalWrite(leftUp, 1);
-              digitalWrite(leftDown, 0);
-              return;
-            }
-            if(strcmp((const char*)myObj["directionY"], "down") == 0) {
-              digitalWrite(leftUp, 0);
-              digitalWrite(leftDown, 1);
-              return;
-            }
-            digitalWrite(leftUp, 0);
-            digitalWrite(leftDown, 0);
-            return;
-          }
-        }
-        if(strcmp((const char*)myObj["controller"], "quad") == 0) {
-          //Serial.print((const char*)myObj["controller"]);
-          //Serial.print(", ");
-          if(myObj.hasOwnProperty("directionY")){
-            //Serial.print((const char*)myObj["directionY"]);
-            if(strcmp((const char*)myObj["directionY"], "up") == 0) {
-              Serial.println("ARRIBA");
-              digitalWrite(rightUp, 1);
-              digitalWrite(rightDown, 0);
-            } else if(strcmp((const char*)myObj["directionY"], "down") == 0) {
-              Serial.println("ABAJO");
-              digitalWrite(rightUp, 0);
-              digitalWrite(rightDown, 1);
-            } else {
-              Serial.println("STOP");
-              digitalWrite(rightUp, 0);
-              digitalWrite(rightDown, 0);
-            }
-          }
-          if(myObj.hasOwnProperty("directionX")){
-            //Serial.print(", ");
-            //Serial.print((const char*)myObj["directionX"]);
-            if(strcmp((const char*)myObj["directionX"], "left") == 0) {
-              Serial.println("IZQUIERDA");
-              digitalWrite(rightLeft, 1);
-              digitalWrite(rightRight, 0);
-            } else if (strcmp((const char*)myObj["directionX"], "right") == 0) {
-              Serial.println("DERECHA");
-              digitalWrite(rightLeft, 0);
-              digitalWrite(rightRight, 1);
-            } else {
-              Serial.println("STOP");
-              digitalWrite(rightLeft, 0);
-              digitalWrite(rightRight, 0);
-            }
-          }
-          Serial.println();
-          return;
-        }
-      }
+// Perform action received to pin, then update GPIO states
+void handlePinMessage(JSONVar Obj) {
+  if(Obj.hasOwnProperty("number") && Obj.hasOwnProperty("action")){
+    int gpio = atoi(Obj["number"]);
+    Serial.print("On pin: ");
+    Serial.print(gpio);
+    Serial.print(" Action: ");
+    Serial.print((const char*)Obj["action"]);
+    Serial.print(": ");
+    if(strcmp((const char*)Obj["action"], "toggle") == 0) {
+      digitalWrite(gpio, !digitalRead(gpio));
+      Serial.println("Toggled");
+      handleGpiostatesMessage();
     }
   }
 }
 
+// Check and change GPIO state, made for testing...
+void checkAndChangeOutput(int pin, bool state) {
+  if((bool)digitalRead(pin) != state)
+  {
+    Serial.print("Writing ");
+    Serial.println(pin);
+    digitalWrite(pin, state);
+  }
+}
+
+// Quad joystick outputs
+void quadJoystick(JSONVar Obj) {
+  if(Obj.hasOwnProperty("directionY")){
+    if(strcmp((const char*)Obj["directionY"], "up") == 0) {
+      checkAndChangeOutput(rightUp, true);
+      checkAndChangeOutput(rightDown, false);
+    } else if(strcmp((const char*)Obj["directionY"], "down") == 0) {
+      checkAndChangeOutput(rightUp, false);
+      checkAndChangeOutput(rightDown, true);
+    } else {
+      checkAndChangeOutput(rightUp, false);
+      checkAndChangeOutput(rightDown, false);
+    }
+  }
+  if(Obj.hasOwnProperty("directionX")){
+    if(strcmp((const char*)Obj["directionX"], "left") == 0) {
+      checkAndChangeOutput(rightLeft, true);
+      checkAndChangeOutput(rightRight, false);
+    } else if (strcmp((const char*)Obj["directionX"], "right") == 0) {
+      checkAndChangeOutput(rightLeft, false);
+      checkAndChangeOutput(rightRight, true);
+    } else {
+      checkAndChangeOutput(rightLeft, false);
+      checkAndChangeOutput(rightRight, false);
+    }
+  }
+}
+
+// Bi joystick outputs
+void biJoystick(JSONVar Obj) {
+  if(Obj.hasOwnProperty("directionY")){
+    Serial.print((const char*)Obj["controller"]);
+    Serial.print(", ");
+    Serial.println((const char*)Obj["directionY"]);
+    if(strcmp((const char*)Obj["directionY"], "up") == 0) {
+      checkAndChangeOutput(leftUp, true);
+      checkAndChangeOutput(leftDown, false);
+      return;
+    }
+    if(strcmp((const char*)Obj["directionY"], "down") == 0) {
+      checkAndChangeOutput(leftUp, false);
+      checkAndChangeOutput(leftDown, true);
+      return;
+    }
+    checkAndChangeOutput(leftUp, false);
+      checkAndChangeOutput(leftDown, false);
+    return;
+  }
+}
+
+//Handle both joystick messages
+void handleJoystickMessage(JSONVar Obj) {
+  Serial.println(Obj);
+  if(Obj.hasOwnProperty("controller")){
+    if(strcmp((const char*)Obj["controller"], "bi") == 0) {
+      biJoystick(Obj);
+    }
+    if(strcmp((const char*)Obj["controller"], "quad") == 0) {
+      quadJoystick(Obj);
+    }
+  }
+}
+
+//Handle all messages
+void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
+  AwsFrameInfo *info = (AwsFrameInfo*)arg;
+  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
+    JSONVar myObj = JSON.parse((char*)data);
+
+    if (JSON.typeof(myObj) == "undefined") {
+      Serial.println("Parsing input failed!");
+      return;
+    }
+
+    if (!myObj.hasOwnProperty("id")) {
+      Serial.println("No id property...");
+      return;
+    }
+
+    Serial.println("-------------");
+    
+    if(strcmp((const char*)myObj["id"], "gpiostates") == 0) {
+      handleGpiostatesMessage();
+      //return;
+    }
+
+    if(strcmp((const char*)myObj["id"], "pin") == 0) {
+      handlePinMessage(myObj);
+      //return;
+    }
+
+    if(strcmp((const char*)myObj["id"], "joystick") == 0) {
+      handleJoystickMessage(myObj);
+      //return;
+    }
+  }
+}
+
+//Handle websocket events
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,AwsEventType type,
              void *arg, uint8_t *data, size_t len) {
   switch (type) {
@@ -221,20 +217,12 @@ void initWebSocket() {
 }
 
 void setup(){
-  // Serial port for debugging purposes
   Serial.begin(115200);
 
-  // Set GPIOs as outputs
+  // Set GPIO as outputs
   for (int i =0; i<NUM_OUTPUTS; i++){
     pinMode(outputGPIOs[i], OUTPUT);
   }
-
-  pinMode(leftUp, OUTPUT);
-  pinMode(leftDown, OUTPUT);
-  pinMode(rightUp, OUTPUT);
-  pinMode(rightDown, OUTPUT);
-  pinMode(rightRight, OUTPUT);
-  pinMode(rightLeft, OUTPUT);
 
   initSPIFFS();
   initWiFi();
